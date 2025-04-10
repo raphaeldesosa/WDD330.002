@@ -2,7 +2,7 @@ const API_key = "b35defef8fd84765bf9b1398df0dcf7b";
 const gameList = document.getElementById("game-list");
 
 async function fetchGames() {
-    const url = `https://api.rawg.io/api/games?key=${API_key}&page_size=10`;
+    const url = `https://api.rawg.io/api/games?key=${API_key}&page_size=100`;
 
     try {
         const response = await fetch(url);
@@ -27,37 +27,13 @@ function displayGames(games) {
         document.querySelectorAll(".view-details").forEach(button => {
             button.addEventListener("click", () => {
                 const gameId = button.dataset.id;
-                showGameDetails(gameId);
+                window.location.href = `game-details.html?id=${gameId}`;
             })
         })
 }
 
-async function showGameDetails(gameId) {
-    const url = `https://api.rawg.io/api/games/${gameId}?key=${API_key}`;
-    const modal = document.getElementById("game-modal");
-    const modalDetails = document.getElementById("modal-details");
 
-    try {
-        const res = await fetch(url);
-        const game = await res.json();
 
-        modalDetails.innerHTML = `
-        <h2>${game.name}</h2>
-        <img src=${game.background_image} alt=${game.name} width="100%"/>
-        <p><strong>Released:</strong> ${game.released}</p>
-        <p><strong>Rating:</strong>${game.rating}</p>
-        <p><strong>Genres:</strong>${game.genres.map(g => g.name).join(",")}</p>
-        <p><strong>Description:</strong>${game.description_raw}</p>`;
-        
-    modal.classList.remove("hide");    
-    } catch (err) {
-        modalDetails.innerHTML = "<p>Error loading game details.</p>";
-        modal.classList.remove("hide");
-    }
-}
 
-document.getElementById("modal-close").addEventListener("click", () => {
-    document.getElementById("game-modal").classList.add("hide");
-});
 
 fetchGames()
