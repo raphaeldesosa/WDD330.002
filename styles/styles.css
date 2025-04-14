@@ -219,4 +219,59 @@ h3 {
     text-align: center;
 }
 
+.favorite-button {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
 
+.favorite-button button {
+    margin: 10px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    border: none;
+    background-color: lightblue;
+    color: black;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: lightgoldenrodyellow;
+}
+
+
+#favorite-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 2rem;
+    gap: 1rem;
+}
+
+#favorite-list .game-card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+h1 {
+    text-align: center;
+}
+
+.back-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.back-button-container button {
+    padding: 10px 20px;
+    color: white;
+}

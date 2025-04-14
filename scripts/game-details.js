@@ -96,3 +96,41 @@ function deleteReview(index) {
 }
 
 loadReviews();
+
+const discussionForm = document.getElementById("discussion-form");
+const discussionContainer = document.getElementById("discussion-comments");
+
+loadDiscussion();
+
+discussionForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("commenter-name").value;
+    const text = document.getElementById("comment-text").value;
+
+    const comment = {name, text, date: new Date().toLocaleString()};
+
+    const key = `discussion-${gameId}`;
+    const existingComments = JSON.parse(localStorage.getItem(key)) || [];
+    existingComments.push(comment);
+    localStorage.setItem(key, JSON.stringify(existingComments));
+
+    discussionForm.reset();
+    loadDiscussion();
+});
+
+function loadDiscussion() {
+    const comments = JSON.parse(localStorage.getItem(`discussion-${gameId}`)) || [];
+
+    if (comments.length === 0) {
+        discussionContainer.innerHTML = "<p>No comments yet. Be the first to create a discussion!</p>";
+        return;
+    }
+
+    discussionContainer.innerHTML = comments.map(c => `
+        <div class="review">
+            <strong>${c.name}</strong> <em>${c.date}</em>
+            <p>${c.text}</p>
+        </div>
+    `).join("");
+}

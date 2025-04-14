@@ -3,6 +3,7 @@ const gameList = document.getElementById("game-list");
 
 let allGames = [];
 
+//fetch game details from RAWG API
 async function fetchGames() {
     const url = `https://api.rawg.io/api/games?key=${API_key}&page_size=100`;
 
@@ -30,6 +31,7 @@ function displayGames(games) {
             <h3>${game.name}</h3>
             <p>Released: ${game.released}</p>
             <button class="view-details" data-id="${game.id}">View Details</button>
+            <button class="favorite-btn" data-id="${game.id}" data-name="${game.name}" data-image="${game.background_image}">⭐ Favorite</button>
         </div>`).join('');
 
         document.querySelectorAll(".view-details").forEach(button => {
@@ -38,6 +40,27 @@ function displayGames(games) {
                 window.location.href = `game-details.html?id=${gameId}`;
             })
         })
+
+        document.querySelectorAll(".favorite-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                const gameId = button.dataset.id;
+                const name = button.dataset.name;
+                const image = button.dataset.image;
+                addToFavorites({ id: gameId, name, image});
+            });
+        });
+}
+
+function addToFavorites(game) {
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+    if (!favorites.some(fav => fav.id === game.id)) {
+        favorites.push(game);
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        alert(`${game.name} added to favorites!`);
+    } else {
+        alert(`${game.name} is already in your favorites.`);
+    }
 }
 
 
