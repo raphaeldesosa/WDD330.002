@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Details Page</title>
-    <link rel="stylesheet" href="styles/styles.css"></link>
+    <link rel="stylesheet" href="styles/styles.css">
     <script src="scripts/game-details.js" type="module"></script>
 </head>
 <body>
@@ -13,35 +13,31 @@
     <h2>Leave a Review</h2>
     <div id="reviews"></div>
     <form id="review-form">
-        <input type="text" id="reviewer" placeholder="Your Name" required />
+        <input type="text" id="reviewer" placeholder="Your Name" required>
         <textarea id="review-text" placeholder="Your Review" required></textarea>
 
         <div id="star-rating">
             <label>Rating:</label>
             <div class="stars">
-                <input type="radio" name="rating" value="5" id="star5" required /><label for="star5">★</label>
-                <input type="radio" name="rating" value="4" id="star4" /><label for="star4">★</label>
-                <input type="radio" name="rating" value="3" id="star3" /><label for="star3">★</label>
-                <input type="radio" name="rating" value="2" id="star2" /><label for="star2">★</label>
-                <input type="radio" name="rating" value="1" id="star1" /><label for="star1">★</label>
+                <label for="star5">★</label>
+                <input type="radio" name="rating" value="5" id="star5" required>
+                <label for="star4">★</label>
+                <input type="radio" name="rating" value="4" id="star4">
+                <label for="star3">★</label>
+                <input type="radio" name="rating" value="3" id="star3">
+                <label for="star2">★</label>
+                <input type="radio" name="rating" value="2" id="star2">
+                <label for="star1">★</label>
+                <input type="radio" name="rating" value="1" id="star1">
             </div>
         </div>
         <button type="submit">Post Review</button>
     </form>
 
     <h3 id="average-rating"></h3>
-
-    <h2>Discussions</h2>
-    <div id="discussion-comments"></div>
-
-    <form id="discussion-form">
-        <input type="text" id="commenter-name" placeholder="Your name" required />
-        <textarea id="comment-text" placeholder="thoughts?" required></textarea>
-        <button type="submit">Post Comment</button>
-    </form>
+    <footer>
+        <button id="back-button">Back to Game List</button>
+    </footer>    
 
 </body>
-<footer>
-    <button id="back-button">Back to Game List</button>
-</footer>
 </html>

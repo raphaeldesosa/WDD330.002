@@ -1,12 +1,18 @@
-const API_key = "b35defef8fd84765bf9b1398df0dcf7b";
+const RAWG_API_key = "b35defef8fd84765bf9b1398df0dcf7b";
+
+
 const urlParams = new URLSearchParams(window.location.search);
 const gameId = urlParams.get("id");
 
 const detailContainer = document.getElementById("game-details");
+const reviewsContainer = document.getElementById("reviews");
+const form = document.getElementById("review-form");
+
+//Fetch RAWG Game Details
 
 async function getGameDetails () {
     try {
-        const res = await fetch(`https://api.rawg.io/api/games/${gameId}?key=${API_key}`);
+        const res = await fetch(`https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_key}`);
         const game = await res.json();
 
         detailContainer.innerHTML = `
@@ -16,21 +22,46 @@ async function getGameDetails () {
         <p><strong>Rating:</strong>${game.rating}</p>
         <p><strong>Genres:</strong>${game.genres.map(g => g.name).join(",")}</p>
         <p><strong>Description:</strong>${game.description_raw}</p>
-        <p><strong>Platforms:</strong>${game.platforms.map(p => p.platform.name).join(",")}</p>`;
+        <p><strong>Platforms:</strong>${game.platforms.map(p => p.platform.name).join(",")}</p>
+        <div id="extra-info"></div>`;
+
+        loadTrailer();
+
+        
+        
     } catch (err) {
         detailContainer.innerHTML = "<p>Error loading game details</p>";
         console.error(err);
     }
 }
 
-document.getElementById("back-button").addEventListener("click", () => {
-    window.location.href="index.html";
-})
+//Load Trailers using RAWG movies endpoint
 
-getGameDetails();
+async function loadTrailer() {
+    try {
+        const res = await fetch(`https://api.rawg.io/api/games/${gameId}/movies?key=${RAWG_API_key}`);
+        const data = await res.json();
 
-const form = document.getElementById("review-form");
-const reviewsContainer = document.getElementById("reviews");
+        if (data.results.length > 0) {
+            const video = data.results[0];
+            const extraInfoDiv = document.getElementById("extra-info");
+
+            extraInfoDiv.innerHTML += `
+                <h3>Trailers</h3>
+                <video controls width="100%">
+                    <source src="${video.data.max}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>`;
+        } else {
+            const extraInfoDiv = document.getElementById("extra-info");
+            extraInfoDiv.innerHTML += `<p><em>No trailer available for this game.</em></p>`
+        }
+    } catch (error) {
+        console.error("Error loading trailer:", error);
+    }
+}
+
+//Review Form Submission
 
 form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -39,7 +70,7 @@ form.addEventListener("submit", function (e) {
     const text = document.getElementById("review-text").value;
     const rating = document.querySelector('input[name="rating"]:checked').value;
 
-    const review = { name, text, rating: parseInt(rating), date: new Date().toLocaleString() };
+    const review = { name, text, rating: parseInt(rating), date: new Date().toLocaleString(), replies: [] };
 
 
     const existing = JSON.parse(localStorage.getItem(`reviews-${gameId}`)) || [];
@@ -71,7 +102,23 @@ function loadReviews() {
                     <strong>${r.name}</strong> <em>${r.date}</em>
                     <p>Rating: ${"★".repeat(r.rating)} ${"☆".repeat(5-r.rating)}</p>
                     <p>${r.text}</p>
-                    <button class="delete-review" data-index=${index}">Delete</button>
+
+                    <div class="replies">
+                        ${(r.replies || []).map(reply => `
+                            <div class="reply">
+                                <strong>${reply.name}</strong> <em>${reply.date}</em>
+                                <p>${reply.text}</p>
+                            </div>
+                        `).join("")}
+                    </div>
+                    
+                    <form class="reply-form" data-index="${index}">
+                        <input type="text" placeholder="Your name" required class="reply-name" />
+                        <input type="text" placeholder="reply?" required class="reply-text" />
+                        <button type="submit">Reply</button>
+                    </form>
+
+                    <button class="delete-review" data-index="${index}">Delete</button>
                  </div>
                 `
                 )
@@ -81,56 +128,42 @@ function loadReviews() {
         button.addEventListener("click", (e) => {
             const index = e.target.dataset.index;
             deleteReview(index);
-        })
-    })            
+        });
+    });
+    
+    document.querySelectorAll(".reply-form").forEach(form => {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const index = e.target.dataset.index;
+            const name = form.querySelector(".reply-name").value;
+            const text = form.querySelector(".reply-text").value;
+            const date = new Date().toLocaleString();
+    
+            const reviews = JSON.parse(localStorage.getItem(`reviews-${gameId}`)) || []
+            const reply = {name, text, date };
+            reviews[index].replies = reviews[index].replies || [];
+            reviews[index].replies.push(reply);
+    
+            localStorage.setItem(`reviews-${gameId}`, JSON.stringify(reviews));
+            loadReviews();
+        });
+    });
+    
 }
 
 function deleteReview(index) {
     const reviews = JSON.parse(localStorage.getItem(`reviews-${gameId}`)) || [];
-
     reviews.splice(index, 1);
-
     localStorage.setItem(`reviews-${gameId}`, JSON.stringify(reviews));
-
     loadReviews();
 }
 
-loadReviews();
-
-const discussionForm = document.getElementById("discussion-form");
-const discussionContainer = document.getElementById("discussion-comments");
-
-loadDiscussion();
-
-discussionForm.addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const name = document.getElementById("commenter-name").value;
-    const text = document.getElementById("comment-text").value;
-
-    const comment = {name, text, date: new Date().toLocaleString()};
-
-    const key = `discussion-${gameId}`;
-    const existingComments = JSON.parse(localStorage.getItem(key)) || [];
-    existingComments.push(comment);
-    localStorage.setItem(key, JSON.stringify(existingComments));
-
-    discussionForm.reset();
-    loadDiscussion();
+document.getElementById("back-button").addEventListener("click", () => {
+    window.location.href = "index.html";
 });
 
-function loadDiscussion() {
-    const comments = JSON.parse(localStorage.getItem(`discussion-${gameId}`)) || [];
+getGameDetails();
+loadReviews();
 
-    if (comments.length === 0) {
-        discussionContainer.innerHTML = "<p>No comments yet. Be the first to create a discussion!</p>";
-        return;
-    }
 
-    discussionContainer.innerHTML = comments.map(c => `
-        <div class="review">
-            <strong>${c.name}</strong> <em>${c.date}</em>
-            <p>${c.text}</p>
-        </div>
-    `).join("");
-}
+
